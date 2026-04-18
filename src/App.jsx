@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-const OPENROUTER_KEY = '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'
+const OPENROUTER_KEY = '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'
 const SPOONACULAR_KEY = '72550ef469b74aa086124bd3354d77c9'
 
 const STYLES = (dark) => `
