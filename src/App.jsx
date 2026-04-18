@@ -171,14 +171,14 @@ html { height: 100%; }
   .pp-header { margin-bottom: 1rem; }
   .pp-input-row { padding-bottom: 1rem; }
   .pp-form-row { grid-template-columns: 1fr; }
-}
+}`
 
 async function askAI(prompt) {
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENROUTER_KEY}`, 'HTTP-Referer': 'http://localhost:5173', 'X-Title': 'Pantry Pal' },
     body: JSON.stringify({ model: 'openrouter/free' , messages: [{ role: 'user', content: prompt }] })
-    
+  });
   const data = await res.json()
   if (!data.choices) throw new Error('AI Error')
   return data.choices[0].message.content
