@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-const OPENROUTER_KEY = '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'
+const OPENROUTER_KEY = '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'
 const SPOONACULAR_KEY = '72550ef469b74aa086124bd3354d77c9'
 
 const STYLES = (dark) => `
@@ -33,9 +34,7 @@ const STYLES = (dark) => `
     --radius-md: 8px;
     --radius-lg: 14px;
   }
-   body { font-family: 'DM Sans', system-ui, sans-serif !important; background: var(--bg-tertiary); margin: 0; padding: 0; overflow-x: hidden; }
-html { height: 100%; }
-* { -webkit-tap-highlight-color: transparent; } 
+  body { font-family: 'DM Sans', system-ui, sans-serif !important; background: var(--bg-tertiary); }
   .pp-wrap { max-width: 920px; margin: 0 auto; padding: 1.5rem 1rem 4rem; font-family: 'DM Sans', system-ui, sans-serif; color: var(--text-primary); min-height: 100vh; }
   .pp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.75rem; }
   .pp-logo { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; }
@@ -156,29 +155,15 @@ html { height: 100%; }
   .pp-auth-switch { text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-secondary); }
   .pp-auth-switch button { background: none; border: none; color: var(--blue-mid); cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif; text-decoration: underline; }
   .pp-loading { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-tertiary); font-family: 'DM Sans', sans-serif; color: var(--text-secondary); font-size: 14px; gap: 12px; }
-@media (max-width: 600px) {
-  .pp-wrap { padding: 0.75rem 0.75rem 5rem; min-height: 100dvh; }
-  .pp-stats { grid-template-columns: repeat(2,1fr); }
-  .pp-form-row.three { grid-template-columns: 1fr 1fr; }
-  .pp-nutrition { grid-template-columns: repeat(2,1fr); }
-  .pp-grid { grid-template-columns: 1fr 1fr; }
-  .pp-recipe-grid { grid-template-columns: 1fr 1fr; }
-  .pp-tabs { gap: 2px; padding: 3px; }
-  .pp-tab { font-size: 10px; padding: 7px 4px; min-width: 50px; }
-  .pp-logo { font-size: 18px; }
-  .pp-email { display: none; }
-  .pp-box { padding: 1rem; }
-  .pp-header { margin-bottom: 1rem; }
-  .pp-input-row { padding-bottom: 1rem; }
-  .pp-form-row { grid-template-columns: 1fr; }
-}`
+  @media (max-width: 600px) { .pp-stats { grid-template-columns: repeat(2,1fr); } .pp-form-row.three { grid-template-columns: 1fr 1fr; } .pp-nutrition { grid-template-columns: repeat(2,1fr); } }
+`
 
 async function askAI(prompt) {
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENROUTER_KEY}`, 'HTTP-Referer': 'http://localhost:5173', 'X-Title': 'Pantry Pal' },
-    body: JSON.stringify({ model: 'openrouter/free' , messages: [{ role: 'user', content: prompt }] })
-  });
+    body: JSON.stringify({ model: 'openrouter/free', messages: [{ role: 'user', content: prompt }] })
+  })
   const data = await res.json()
   if (!data.choices) throw new Error('AI Error')
   return data.choices[0].message.content
