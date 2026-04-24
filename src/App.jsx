@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-const GEMINI_KEY = 'AIzaSyD3OKsYeTOY0SylG4C5ud75JSIDdOxflEQ'
+const GEMINI_KEY = 'AIzaSyAqeyHbh1qMmDoswBr_pGVYDE91ntMHgwU'
 const SPOONACULAR_KEY = '72550ef469b74aa086124bd3354d77c9'
 
 const STYLES = (dark) => `
