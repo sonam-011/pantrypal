@@ -1,13 +1,14 @@
-
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-const OPENROUTER_KEY = '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'
+const GEMINI_KEY = 'AIzaSyD3OKsYeTOY0SylG4C5ud75JSIDdOxflEQ'
 const SPOONACULAR_KEY = '72550ef469b74aa086124bd3354d77c9'
 
 const STYLES = (dark) => `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { height: 100%; }
+  body { font-family: 'DM Sans', system-ui, sans-serif !important; background: var(--bg-tertiary); margin: 0; padding: 0; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
   :root {
     --bg-primary:    ${dark ? '#1a1f2e' : '#f0f6ff'};
     --bg-secondary:  ${dark ? '#222840' : '#dceeff'};
@@ -34,8 +35,7 @@ const STYLES = (dark) => `
     --radius-md: 8px;
     --radius-lg: 14px;
   }
-  body { font-family: 'DM Sans', system-ui, sans-serif !important; background: var(--bg-tertiary); }
-  .pp-wrap { max-width: 920px; margin: 0 auto; padding: 1.5rem 1rem 4rem; font-family: 'DM Sans', system-ui, sans-serif; color: var(--text-primary); min-height: 100vh; }
+  .pp-wrap { max-width: 920px; margin: 0 auto; padding: 1.5rem 1rem 4rem; font-family: 'DM Sans', system-ui, sans-serif; color: var(--text-primary); min-height: 100dvh; background: var(--bg-tertiary); }
   .pp-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.75rem; }
   .pp-logo { font-size: 22px; font-weight: 600; letter-spacing: -0.4px; }
   .pp-logo span { color: var(--blue-mid); }
@@ -47,7 +47,8 @@ const STYLES = (dark) => `
   .pp-logout:hover { background: var(--red-light); border-color: var(--red); }
   .pp-alert { display: flex; justify-content: space-between; align-items: flex-start; background: var(--amber-light); border: 0.5px solid var(--amber-mid); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 1.25rem; font-size: 13px; color: var(--amber); }
   .pp-alert-close { background: none; border: none; cursor: pointer; color: var(--amber); font-size: 14px; }
-  .pp-tabs { display: flex; gap: 4px; background: var(--bg-secondary); padding: 4px; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 0.5px solid var(--border); overflow-x: auto; }
+  .pp-tabs { display: flex; gap: 4px; background: var(--bg-secondary); padding: 4px; border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 0.5px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .pp-tabs::-webkit-scrollbar { display: none; }
   .pp-tab { flex: 1; min-width: 72px; padding: 8px 6px; border: none; background: transparent; cursor: pointer; font-size: 12px; border-radius: 6px; color: var(--text-secondary); font-family: 'DM Sans', sans-serif; transition: all 0.13s; white-space: nowrap; }
   .pp-tab:hover { color: var(--text-primary); }
   .pp-tab.active { background: var(--bg-card); color: var(--blue-mid); font-weight: 600; border: 0.5px solid var(--border); }
@@ -113,7 +114,7 @@ const STYLES = (dark) => `
   .pp-dot:nth-child(2) { animation-delay: 0.2s; }
   .pp-dot:nth-child(3) { animation-delay: 0.4s; }
   @keyframes ppbounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-  .pp-input-row { display: flex; gap: 8px; position: sticky; bottom: 0; background: var(--bg-tertiary); padding-top: 8px; }
+  .pp-input-row { display: flex; gap: 8px; position: sticky; bottom: 0; background: var(--bg-tertiary); padding-top: 8px; padding-bottom: 8px; }
   .pp-recipe-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(190px,1fr)); gap: 10px; margin-top: 12px; }
   .pp-recipe-card { background: var(--bg-card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
   .pp-recipe-card:hover { border-color: var(--blue-mid); }
@@ -141,8 +142,8 @@ const STYLES = (dark) => `
   .pp-cookbook-date { font-size: 11px; color: var(--text-secondary); margin-top: 8px; font-family: 'DM Mono', monospace; }
   .pp-toast { background: var(--blue-light); border: 0.5px solid var(--blue-mid); color: var(--blue-dark); border-radius: var(--radius-md); padding: 9px 14px; font-size: 13px; font-weight: 500; margin-bottom: 12px; }
   .pp-section-lbl { font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
-  .pp-auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); font-family: 'DM Sans', sans-serif; color: var(--text-primary); }
-  .pp-auth-box { width: 100%; max-width: 380px; padding: 1.5rem; }
+  .pp-auth-wrap { min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); font-family: 'DM Sans', sans-serif; color: var(--text-primary); padding: 1rem; }
+  .pp-auth-box { width: 100%; max-width: 380px; }
   .pp-auth-logo { text-align: center; margin-bottom: 2rem; }
   .pp-auth-logo-icon { font-size: 48px; display: block; margin-bottom: 8px; }
   .pp-auth-logo-name { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; }
@@ -154,20 +155,51 @@ const STYLES = (dark) => `
   .pp-auth-success { background: var(--green-light); border: 0.5px solid var(--green-mid); color: var(--green); border-radius: var(--radius-md); padding: 9px 12px; font-size: 13px; margin-bottom: 12px; }
   .pp-auth-switch { text-align: center; margin-top: 12px; font-size: 13px; color: var(--text-secondary); }
   .pp-auth-switch button { background: none; border: none; color: var(--blue-mid); cursor: pointer; font-size: 13px; font-family: 'DM Sans', sans-serif; text-decoration: underline; }
-  .pp-loading { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-tertiary); font-family: 'DM Sans', sans-serif; color: var(--text-secondary); font-size: 14px; gap: 12px; }
-  @media (max-width: 600px) { .pp-stats { grid-template-columns: repeat(2,1fr); } .pp-form-row.three { grid-template-columns: 1fr 1fr; } .pp-nutrition { grid-template-columns: repeat(2,1fr); } }
+  .pp-loading { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--bg-tertiary); font-family: 'DM Sans', sans-serif; color: var(--text-secondary); font-size: 14px; gap: 12px; }
+
+  @media (max-width: 600px) {
+    .pp-wrap { padding: 0.75rem 0.75rem 5rem; }
+    .pp-header { margin-bottom: 1rem; }
+    .pp-logo { font-size: 18px; }
+    .pp-email { display: none; }
+    .pp-tabs { gap: 2px; padding: 3px; }
+    .pp-tab { font-size: 10px; padding: 7px 3px; min-width: 44px; }
+    .pp-stats { grid-template-columns: repeat(2,1fr); gap: 6px; }
+    .pp-stat-num { font-size: 18px; }
+    .pp-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pp-card { padding: 0.75rem; }
+    .pp-form-row { grid-template-columns: 1fr; }
+    .pp-form-row.three { grid-template-columns: 1fr; }
+    .pp-box { padding: 0.875rem; }
+    .pp-recipe-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pp-nutrition { grid-template-columns: repeat(2,1fr); }
+    .pp-input-row { padding-bottom: 1rem; }
+    .pp-bubble { max-width: 92%; font-size: 12px; }
+    .pp-detail-img { height: 160px; }
+  }
+
+  @media (min-width: 601px) and (max-width: 900px) {
+    .pp-grid { grid-template-columns: repeat(3,1fr); }
+    .pp-stats { grid-template-columns: repeat(4,1fr); }
+  }
 `
 
+// ── AI (Gemini) ──────────────────────────────────────────────
 async function askAI(prompt) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENROUTER_KEY}`, 'HTTP-Referer': 'http://localhost:5173', 'X-Title': 'Pantry Pal' },
-    body: JSON.stringify({ model: 'openrouter/free', messages: [{ role: 'user', content: prompt }] })
-  })
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    }
+  )
   const data = await res.json()
-  if (!data.choices) throw new Error('AI Error')
-  return data.choices[0].message.content
+  if (!data.candidates) throw new Error('Gemini error: ' + JSON.stringify(data))
+  return data.candidates[0].content.parts[0].text
 }
+
+// ── Spoonacular ──────────────────────────────────────────────
 async function searchSpoonacular(ingredients) {
   const res = await fetch(`https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&number=6&ranking=1&apiKey=${SPOONACULAR_KEY}`)
   return await res.json()
@@ -181,6 +213,8 @@ async function searchRecipesByName(query) {
   const data = await res.json()
   return data.results || []
 }
+
+// ── Helpers ──────────────────────────────────────────────────
 function getNutrient(nutrients, name) {
   const n = nutrients?.find(x => x.name === name)
   return n ? `${Math.round(n.amount)}${n.unit}` : '—'
@@ -201,12 +235,22 @@ function daysLabel(expiry) {
   return `Expires in ${days} days`
 }
 function catIcon(cat) {
-  const map = { Vegetables:'🥦', Fruits:'🍎', Meat:'🥩', Dairy:'🧀', Grains:'🌾', Spices:'🫙', Canned:'🥫', Frozen:'🧊', Condiments:'🧴' }
-  for (const [k,v] of Object.entries(map)) if (cat?.includes(k)) return v
+  if (!cat) return '📦'
+  const c = cat.toLowerCase()
+  if (c.includes('vegetable')) return '🥦'
+  if (c.includes('fruit')) return '🍎'
+  if (c.includes('meat') || c.includes('fish')) return '🥩'
+  if (c.includes('dairy')) return '🧀'
+  if (c.includes('grain')) return '🌾'
+  if (c.includes('spice')) return '🫙'
+  if (c.includes('canned')) return '🥫'
+  if (c.includes('frozen')) return '🧊'
+  if (c.includes('condiment')) return '🧴'
   return '📦'
 }
 const QUICK_ITEMS = ['Garlic','Ginger','Potato','Spinach','Eggs','Butter','Flour','Cumin','Oil','Lemon','Onion','Salt','Sugar']
 
+// ── Nutrition Box ────────────────────────────────────────────
 function NutritionBox({ nutrients }) {
   if (!nutrients) return null
   return (
@@ -221,6 +265,7 @@ function NutritionBox({ nutrients }) {
   )
 }
 
+// ── Auth Screen ──────────────────────────────────────────────
 function AuthScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -228,6 +273,7 @@ function AuthScreen() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+
   async function handleSubmit() {
     if (!email || !password) { setError('Please enter email and password'); return }
     setLoading(true); setError(''); setMessage('')
@@ -241,6 +287,7 @@ function AuthScreen() {
     }
     setLoading(false)
   }
+
   return (
     <div className="pp-auth-wrap">
       <div className="pp-auth-box">
@@ -261,9 +308,11 @@ function AuthScreen() {
             <label className="pp-label">Password</label>
             <input className="pp-input" type="password" placeholder="Min 6 characters" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleSubmit()}/>
           </div>
-          <button className="pp-btn primary full" onClick={handleSubmit} disabled={loading}>{loading?'⏳ Please wait…':isLogin?'🔐 Log In':'🚀 Create Account'}</button>
+          <button className="pp-btn primary full" onClick={handleSubmit} disabled={loading}>
+            {loading ? '⏳ Please wait…' : isLogin ? '🔐 Log In' : '🚀 Create Account'}
+          </button>
           <div className="pp-auth-switch">
-            {isLogin?"Don't have an account? ":'Already have an account? '}
+            {isLogin ? "Don't have an account? " : 'Already have an account? '}
             <button onClick={()=>{setIsLogin(!isLogin);setError('');setMessage('')}}>{isLogin?'Sign up':'Log in'}</button>
           </div>
         </div>
@@ -272,6 +321,7 @@ function AuthScreen() {
   )
 }
 
+// ── Main App ─────────────────────────────────────────────────
 function MainApp({ user, dark, setDark }) {
   const [items, setItems] = useState([])
   const [activeTab, setActiveTab] = useState('pantry')
@@ -301,15 +351,22 @@ function MainApp({ user, dark, setDark }) {
 
   async function fetchItems(){const{data}=await supabase.from('pantry_items').select('*').eq('user_id',user.id);setItems(data||[])}
   async function fetchRecipes(){const{data}=await supabase.from('recipes').select('*').eq('user_id',user.id).order('created_at',{ascending:false});setSavedRecipes(data||[])}
-  async function addItem(){if(!name.trim())return;await supabase.from('pantry_items').insert([{name,quantity:qty,category,expiry_date:expiry,notes,user_id:user.id}]);setName('');setQty('');setExpiry('');setNotes('');fetchItems();setActiveTab('pantry')}
+
+  async function addItem(){
+    if(!name.trim())return
+    await supabase.from('pantry_items').insert([{name,quantity:qty,category,expiry_date:expiry,notes,user_id:user.id}])
+    setName('');setQty('');setExpiry('');setNotes('');fetchItems();setActiveTab('pantry')
+  }
   async function deleteItem(id){await supabase.from('pantry_items').delete().eq('id',id);fetchItems()}
   async function deleteRecipe(id){await supabase.from('recipes').delete().eq('id',id);fetchRecipes()}
+
   async function saveRecipe(text,nutrition){
     const title=text.split('\n')[0].replace(/[#*🍛🍜🍝🍲]/g,'').trim()||'AI Recipe'
     const nutrNote=nutrition?`\n\n📊 Nutrition per serving:\nCalories: ${nutrition.calories} | Protein: ${nutrition.protein} | Carbs: ${nutrition.carbs} | Fat: ${nutrition.fat}`:''
     await supabase.from('recipes').insert([{title:title.slice(0,80),content:text+nutrNote,user_id:user.id}])
     setSaveSuccess(true);setTimeout(()=>setSaveSuccess(false),3000);fetchRecipes()
   }
+
   async function saveSpoonRecipe(recipe){
     const nutr=recipe.nutrition?.nutrients
     const nutrNote=nutr?`\n\n📊 Nutrition per serving:\nCalories: ${getNutrient(nutr,'Calories')} | Protein: ${getNutrient(nutr,'Protein')} | Carbs: ${getNutrient(nutr,'Carbohydrates')} | Fat: ${getNutrient(nutr,'Fat')}`:''
@@ -317,6 +374,7 @@ function MainApp({ user, dark, setDark }) {
     await supabase.from('recipes').insert([{title:recipe.title,content,user_id:user.id}])
     setSaveSuccess(true);setTimeout(()=>setSaveSuccess(false),3000);fetchRecipes()
   }
+
   async function handleAIPrompt(){
     if(!userPrompt.trim())return
     setLoadingAI(true)
@@ -333,14 +391,16 @@ function MainApp({ user, dark, setDark }) {
       }
       setChatHistory(prev=>[...prev,{role:'user',text:userPrompt},{role:'ai',text:cleanResponse,nutrition}])
       setUserPrompt('')
-    } catch {
-      setChatHistory(prev=>[...prev,{role:'user',text:userPrompt},{role:'ai',text:'❌ Something went wrong. Please try again.'}])
+    } catch(err) {
+      setChatHistory(prev=>[...prev,{role:'user',text:userPrompt},{role:'ai',text:'❌ Something went wrong. Check your Gemini API key.'}])
     }
     setLoadingAI(false)
   }
+
   async function searchFromPantry(){if(!items.length){alert('Add pantry items first!');return}setLoadingSpoon(true);setSelectedRecipe(null);const data=await searchSpoonacular(items.map(i=>i.name).join(','));setSpoonRecipes(data);setLoadingSpoon(false)}
   async function searchByName(){if(!searchQuery.trim())return;setLoadingSpoon(true);setSelectedRecipe(null);const data=await searchRecipesByName(searchQuery);setSpoonRecipes(data);setLoadingSpoon(false)}
   async function openRecipeDetails(id){setLoadingDetails(true);setSelectedRecipe(null);const data=await getRecipeDetails(id);setSelectedRecipe(data);setLoadingDetails(false)}
+
   function addShopItem(){if(!shopInput.trim())return;setShopItems([...shopItems,{id:Date.now(),text:shopInput,checked:false}]);setShopInput('')}
   function toggleShopItem(id){setShopItems(shopItems.map(i=>i.id===id?{...i,checked:!i.checked}:i))}
   function deleteShopItem(id){setShopItems(shopItems.filter(i=>i.id!==id))}
@@ -353,7 +413,7 @@ function MainApp({ user, dark, setDark }) {
   const categoryCounts=items.reduce((acc,i)=>{const c=i.category||'Other';acc[c]=(acc[c]||0)+1;return acc},{})
   const alerts=items.filter(i=>i.expiry_date&&Math.ceil((new Date(i.expiry_date)-new Date())/(1000*60*60*24))<=3)
   const filtered=items.filter(i=>filter==='all'||getStatus(i.expiry_date)===filter)
-  const TABS=[{id:'pantry',label:'🏠 Pantry'},{id:'add',label:'➕ Add'},{id:'search',label:'🔍 Search'},{id:'ai',label:'✨ AI Chef'},{id:'shop',label:'🛒 Shop'},{id:'stats',label:'📊 Stats'},{id:'saved',label:`📖 Cookbook (${savedRecipes.length})`}]
+  const TABS=[{id:'pantry',label:'🏠 Pantry'},{id:'add',label:'➕ Add'},{id:'search',label:'🔍 Search'},{id:'ai',label:'✨ AI'},{id:'shop',label:'🛒 Shop'},{id:'stats',label:'📊 Stats'},{id:'saved',label:`📖 (${savedRecipes.length})`}]
 
   return (
     <div className="pp-wrap">
@@ -361,7 +421,7 @@ function MainApp({ user, dark, setDark }) {
         <div className="pp-logo">🥦 Pantry<span>Pal</span></div>
         <div className="pp-header-right">
           <span className="pp-email">{user.email}</span>
-          <button className="pp-icon-btn" onClick={()=>setDark(!dark)} title="Toggle dark mode">{dark?'☀️':'🌙'}</button>
+          <button className="pp-icon-btn" onClick={()=>setDark(!dark)}>{dark?'☀️':'🌙'}</button>
           <button className="pp-logout" onClick={()=>supabase.auth.signOut()}>Sign out</button>
         </div>
       </div>
@@ -380,10 +440,11 @@ function MainApp({ user, dark, setDark }) {
         {TABS.map(t=><button key={t.id} className={`pp-tab ${activeTab===t.id?'active':''}`} onClick={()=>setActiveTab(t.id)}>{t.label}</button>)}
       </div>
 
+      {/* PANTRY */}
       {activeTab==='pantry'&&(
         <>
           <div className="pp-stats">
-            <div className="pp-stat"><div className="pp-stat-num">{total}</div><div className="pp-stat-lbl">Total items</div></div>
+            <div className="pp-stat"><div className="pp-stat-num">{total}</div><div className="pp-stat-lbl">Total</div></div>
             <div className="pp-stat"><div className="pp-stat-num" style={{color:'var(--green-mid)'}}>{fresh}</div><div className="pp-stat-lbl">Fresh</div></div>
             <div className="pp-stat"><div className="pp-stat-num" style={{color:'var(--amber)'}}>{expiring}</div><div className="pp-stat-lbl">Expiring</div></div>
             <div className="pp-stat"><div className="pp-stat-num" style={{color:'var(--red)'}}>{expired}</div><div className="pp-stat-lbl">Expired</div></div>
@@ -392,16 +453,16 @@ function MainApp({ user, dark, setDark }) {
             {['all','fresh','expiring','expired'].map(f=><button key={f} className={`pp-filter ${filter===f?'active':''}`} onClick={()=>setFilter(f)}>{f==='all'?'All':f==='fresh'?'🟢 Fresh':f==='expiring'?'🟡 Expiring':'🔴 Expired'}</button>)}
           </div>
           <div className="pp-grid">
-            {filtered.length===0&&<div className="pp-empty">No items found. Add some from the Add Item tab!</div>}
+            {filtered.length===0&&<div className="pp-empty">No items found. Add some from the Add tab!</div>}
             {filtered.map(item=>{const s=getStatus(item.expiry_date);return(
               <div key={item.id} className={`pp-card ${s}`}>
                 <div className="pp-card-icon">{catIcon(item.category)}</div>
                 <div className="pp-card-name">{item.name}</div>
                 <div className="pp-card-meta">{item.quantity||'–'}{item.notes?' · '+item.notes:''}</div>
-                <span className={`pp-badge ${s}`}>{s==='expired'?'Expired':s==='expiring'?'Expiring soon':'Fresh'}</span>
+                <span className={`pp-badge ${s}`}>{s==='expired'?'Expired':s==='expiring'?'Expiring':'Fresh'}</span>
                 <div className="pp-card-footer">
                   <span className="pp-expiry-lbl">{daysLabel(item.expiry_date)}</span>
-                  <button className="pp-del" onClick={()=>deleteItem(item.id)}>✕ Remove</button>
+                  <button className="pp-del" onClick={()=>deleteItem(item.id)}>✕</button>
                 </div>
               </div>
             )})}
@@ -409,6 +470,7 @@ function MainApp({ user, dark, setDark }) {
         </>
       )}
 
+      {/* ADD */}
       {activeTab==='add'&&(
         <div className="pp-box">
           <div className="pp-box-title">Add to Pantry</div>
@@ -420,7 +482,7 @@ function MainApp({ user, dark, setDark }) {
           </div>
           <div className="pp-form-row">
             <div className="pp-field"><label className="pp-label">Expiry date</label><input className="pp-input" type="date" value={expiry} onChange={e=>setExpiry(e.target.value)}/></div>
-            <div className="pp-field"><label className="pp-label">Notes (optional)</label><input className="pp-input" placeholder="e.g. Organic, from market" value={notes} onChange={e=>setNotes(e.target.value)}/></div>
+            <div className="pp-field"><label className="pp-label">Notes (optional)</label><input className="pp-input" placeholder="e.g. Organic" value={notes} onChange={e=>setNotes(e.target.value)}/></div>
           </div>
           <div className="pp-actions">
             <button className="pp-btn" onClick={()=>{setName('');setQty('');setExpiry('');setNotes('')}}>Clear</button>
@@ -433,34 +495,35 @@ function MainApp({ user, dark, setDark }) {
         </div>
       )}
 
+      {/* SEARCH */}
       {activeTab==='search'&&(
         <div className="pp-box">
           <div className="pp-box-title">Recipe Search</div>
-          <div className="pp-box-sub">Real recipes with photos + nutrition info powered by Spoonacular</div>
-          <div style={{display:'flex',gap:'8px',marginBottom:'16px'}}>
+          <div className="pp-box-sub">Real recipes with photos + nutrition info</div>
+          <div style={{display:'flex',gap:'8px',marginBottom:'16px',flexWrap:'wrap'}}>
             <button className={`pp-btn ${spoonMode==='pantry'?'primary':''}`} onClick={()=>setSpoonMode('pantry')}>🧺 From My Pantry</button>
             <button className={`pp-btn ${spoonMode==='search'?'primary':''}`} onClick={()=>setSpoonMode('search')}>🔍 Search by Name</button>
           </div>
-          {spoonMode==='pantry'&&(<><div style={{fontSize:'13px',color:'var(--text-secondary)',marginBottom:'12px',background:'var(--bg-secondary)',padding:'10px 12px',borderRadius:'var(--radius-md)',border:'0.5px solid var(--border)'}}>Using: <strong style={{color:'var(--text-primary)'}}>{items.map(i=>i.name).join(', ')||'No items yet'}</strong></div><button className="pp-btn primary" onClick={searchFromPantry}>🔍 Find Recipes From My Pantry</button></>)}
-          {spoonMode==='search'&&(<div style={{display:'flex',gap:'8px'}}><input className="pp-input" style={{flex:1}} placeholder="Search… e.g. biryani, pasta, dal" value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==='Enter'&&searchByName()}/><button className="pp-btn primary" onClick={searchByName}>Search</button></div>)}
+          {spoonMode==='pantry'&&(<><div style={{fontSize:'13px',color:'var(--text-secondary)',marginBottom:'12px',background:'var(--bg-secondary)',padding:'10px 12px',borderRadius:'var(--radius-md)',border:'0.5px solid var(--border)'}}>Using: <strong style={{color:'var(--text-primary)'}}>{items.map(i=>i.name).join(', ')||'No items yet'}</strong></div><button className="pp-btn primary" onClick={searchFromPantry}>🔍 Find Recipes</button></>)}
+          {spoonMode==='search'&&(<div style={{display:'flex',gap:'8px'}}><input className="pp-input" style={{flex:1}} placeholder="e.g. biryani, pasta, dal" value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} onKeyDown={e=>e.key==='Enter'&&searchByName()}/><button className="pp-btn primary" onClick={searchByName}>Search</button></div>)}
           {loadingSpoon&&<div style={{textAlign:'center',padding:'2rem',color:'var(--text-secondary)',fontSize:'13px'}}><div className="pp-typing" style={{margin:'0 auto 12px'}}><div className="pp-dot"/><div className="pp-dot"/><div className="pp-dot"/></div>Finding recipes…</div>}
-          {loadingDetails&&<div style={{textAlign:'center',padding:'2rem',color:'var(--text-secondary)',fontSize:'13px'}}>Loading recipe details…</div>}
+          {loadingDetails&&<div style={{textAlign:'center',padding:'2rem',color:'var(--text-secondary)',fontSize:'13px'}}>Loading details…</div>}
           {selectedRecipe&&!loadingDetails&&(
             <div style={{border:'0.5px solid var(--border)',borderRadius:'var(--radius-lg)',overflow:'hidden',marginTop:'12px'}}>
-              <button className="pp-detail-back" onClick={()=>setSelectedRecipe(null)}>← Back to results</button>
+              <button className="pp-detail-back" onClick={()=>setSelectedRecipe(null)}>← Back</button>
               <img className="pp-detail-img" src={selectedRecipe.image} alt={selectedRecipe.title}/>
               <div className="pp-detail-body">
                 <div className="pp-detail-title">{selectedRecipe.title}</div>
                 <div className="pp-pills">
                   <span className="pp-pill blue">⏱ {selectedRecipe.readyInMinutes} mins</span>
                   <span className="pp-pill">👥 {selectedRecipe.servings} servings</span>
-                  {selectedRecipe.vegetarian&&<span className="pp-pill green">🌿 Vegetarian</span>}
+                  {selectedRecipe.vegetarian&&<span className="pp-pill green">🌿 Veg</span>}
                 </div>
                 {selectedRecipe.nutrition?.nutrients&&(<><div className="pp-section-lbl">📊 Nutrition per serving</div><NutritionBox nutrients={selectedRecipe.nutrition.nutrients}/></>)}
                 <div className="pp-section-lbl">Ingredients</div>
                 <ul className="pp-ingr-list">{selectedRecipe.extendedIngredients?.map((ing,i)=><li key={i}>{ing.original}</li>)}</ul>
                 <div style={{display:'flex',gap:'8px'}}>
-                  <button className="pp-btn primary" style={{flex:1}} onClick={()=>saveSpoonRecipe(selectedRecipe)}>💾 Save Recipe</button>
+                  <button className="pp-btn primary" style={{flex:1}} onClick={()=>saveSpoonRecipe(selectedRecipe)}>💾 Save</button>
                   <a href={selectedRecipe.sourceUrl} target="_blank" rel="noreferrer" style={{flex:1,background:'var(--bg-secondary)',color:'var(--text-primary)',border:'0.5px solid var(--border)',padding:'8px 16px',borderRadius:'var(--radius-md)',fontSize:'13px',textAlign:'center',textDecoration:'none',display:'inline-block'}}>🔗 Full Recipe</a>
                 </div>
               </div>
@@ -475,7 +538,7 @@ function MainApp({ user, dark, setDark }) {
                     <div className="pp-recipe-name">{recipe.title}</div>
                     {recipe.usedIngredientCount!==undefined&&<div className="pp-recipe-matched">✅ {recipe.usedIngredientCount} matched</div>}
                     {recipe.readyInMinutes&&<div className="pp-recipe-meta">⏱ {recipe.readyInMinutes} mins</div>}
-                    {nutr&&<div className="pp-recipe-meta" style={{color:'var(--blue-mid)',marginTop:'2px'}}>🔥 {getNutrient(nutr,'Calories')}</div>}
+                    {nutr&&<div className="pp-recipe-meta" style={{color:'var(--blue-mid)'}}>🔥 {getNutrient(nutr,'Calories')}</div>}
                   </div>
                 </div>
               )})}
@@ -485,26 +548,27 @@ function MainApp({ user, dark, setDark }) {
         </div>
       )}
 
+      {/* AI CHEF */}
       {activeTab==='ai'&&(
         <>
           <div className="pp-box" style={{marginBottom:'10px'}}>
             <div className="pp-box-title">✨ AI Chef</div>
-            <div className="pp-box-sub">Ask anything — recipes, tips, meal ideas. Nutrition values included automatically!</div>
+            <div className="pp-box-sub">Ask anything — recipes, tips, nutrition included!</div>
             <div className="pp-chips">
-              {['Make me a quick 15 min dinner with chicken','What can I cook with tomatoes and onions?','Give me a healthy low-calorie breakfast'].map((ex,i)=><button key={i} className="pp-chip" onClick={()=>setUserPrompt(ex)}>💬 {ex}</button>)}
-              <button className="pp-chip ingr" onClick={()=>setUserPrompt(`Suggest 2 recipes I can make with: ${items.map(i=>i.name).join(', ')}`)}>🧺 Auto-generate from my pantry</button>
+              {['Make me a quick 15 min dinner','What can I cook with tomatoes?','Give me a healthy breakfast'].map((ex,i)=><button key={i} className="pp-chip" onClick={()=>setUserPrompt(ex)}>💬 {ex}</button>)}
+              <button className="pp-chip ingr" onClick={()=>setUserPrompt(`Suggest recipes with: ${items.map(i=>i.name).join(', ')}`)}>🧺 From my pantry</button>
             </div>
           </div>
           {saveSuccess&&<div className="pp-toast">✅ Recipe saved to your cookbook!</div>}
           <div className="pp-chat">
-            {chatHistory.length===0&&<div className="pp-chat-empty"><div style={{fontSize:'36px',marginBottom:'8px'}}>👨‍🍳</div>Ask me anything about cooking! Nutrition info included.</div>}
+            {chatHistory.length===0&&<div className="pp-chat-empty"><div style={{fontSize:'36px',marginBottom:'8px'}}>👨‍🍳</div>Ask me anything about cooking!</div>}
             {chatHistory.map((msg,i)=>(
               <div key={i}>
                 <div className={`pp-msg ${msg.role}`}><div className={`pp-bubble ${msg.role}`}>{msg.text}</div></div>
                 {msg.role==='ai'&&(
                   <div style={{paddingLeft:'4px',marginBottom:'4px'}}>
                     {msg.nutrition&&(
-                      <div style={{maxWidth:'85%',marginBottom:'6px'}}>
+                      <div style={{maxWidth:'92%',marginBottom:'6px'}}>
                         <div className="pp-section-lbl" style={{marginBottom:'4px'}}>📊 Estimated nutrition per serving</div>
                         <div className="pp-nutrition">
                           {[{label:'Calories',val:msg.nutrition.calories},{label:'Protein',val:msg.nutrition.protein},{label:'Carbs',val:msg.nutrition.carbs},{label:'Fat',val:msg.nutrition.fat}].map(n=>(
@@ -521,12 +585,13 @@ function MainApp({ user, dark, setDark }) {
             {loadingAI&&<div className="pp-msg"><div className="pp-typing"><div className="pp-dot"/><div className="pp-dot"/><div className="pp-dot"/></div></div>}
           </div>
           <div className="pp-input-row">
-            <input className="pp-input" style={{flex:1}} placeholder="Ask anything… e.g. make me a dal recipe" value={userPrompt} onChange={e=>setUserPrompt(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAIPrompt()}/>
+            <input className="pp-input" style={{flex:1}} placeholder="Ask anything…" value={userPrompt} onChange={e=>setUserPrompt(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleAIPrompt()}/>
             <button className="pp-btn primary" onClick={handleAIPrompt} disabled={loadingAI}>{loadingAI?'⏳':'→'}</button>
           </div>
         </>
       )}
 
+      {/* SHOPPING */}
       {activeTab==='shop'&&(
         <div className="pp-box">
           <div className="pp-box-title">🛒 Shopping List</div>
@@ -535,7 +600,7 @@ function MainApp({ user, dark, setDark }) {
             <input className="pp-input" style={{flex:1}} placeholder="Add item…" value={shopInput} onChange={e=>setShopInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addShopItem()}/>
             <button className="pp-btn primary" onClick={addShopItem}>Add</button>
           </div>
-          <button className="pp-btn full" style={{marginBottom:'16px',background:'var(--amber-light)',color:'var(--amber)',borderColor:'var(--amber-mid)'}} onClick={addExpiringToShop}>⚠️ Add expiring items to list</button>
+          <button className="pp-btn full" style={{marginBottom:'16px',background:'var(--amber-light)',color:'var(--amber)',borderColor:'var(--amber-mid)'}} onClick={addExpiringToShop}>⚠️ Add expiring items</button>
           {shopItems.length===0&&<div className="pp-empty">Your shopping list is empty!</div>}
           {shopItems.map(item=>(
             <div key={item.id} className="pp-shop-item">
@@ -548,10 +613,11 @@ function MainApp({ user, dark, setDark }) {
         </div>
       )}
 
+      {/* STATS */}
       {activeTab==='stats'&&(
         <>
           <div className="pp-stats">
-            <div className="pp-stat"><div className="pp-stat-num">{total}</div><div className="pp-stat-lbl">Total items</div></div>
+            <div className="pp-stat"><div className="pp-stat-num">{total}</div><div className="pp-stat-lbl">Total</div></div>
             <div className="pp-stat"><div className="pp-stat-num" style={{color:'var(--green-mid)'}}>{fresh}</div><div className="pp-stat-lbl">Fresh</div></div>
             <div className="pp-stat"><div className="pp-stat-num" style={{color:'var(--amber)'}}>{expiring}</div><div className="pp-stat-lbl">Expiring</div></div>
             <div className="pp-stat"><div className="pp-stat-num" style={{color:'var(--red)'}}>{expired}</div><div className="pp-stat-lbl">Expired</div></div>
@@ -577,6 +643,7 @@ function MainApp({ user, dark, setDark }) {
         </>
       )}
 
+      {/* COOKBOOK */}
       {activeTab==='saved'&&(
         <>
           <div className="pp-box-title" style={{marginBottom:'12px'}}>📖 My Cookbook</div>
@@ -594,6 +661,7 @@ function MainApp({ user, dark, setDark }) {
   )
 }
 
+// ── Root ─────────────────────────────────────────────────────
 export default function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
