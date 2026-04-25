@@ -195,7 +195,7 @@ async function askAI(prompt) {
       'X-Title': 'Pantry Pal'
     },
     body: JSON.stringify({
-      model: 'mistralai/mistral-7b-instruct:free',
+      model: 'openrouter/free',
       messages: [{ role: 'user', content: prompt }]
     })
   })
