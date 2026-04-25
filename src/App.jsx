@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-const GEMINI_KEY = 'AIzaSyAqeyHbh1qMmDoswBr_pGVYDE91ntMHgwU'
-const SPOONACULAR_KEY = '72550ef469b74aa086124bd3354d77c9'
+const OPENROUTER_KEY = import.meta.env.VITE_OPENROUTER_KEY
+const SPOONACULAR_KEY = import.meta.env.VITE_SPOONACULAR_KEY
 
 const STYLES = (dark) => `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
@@ -186,17 +186,22 @@ const STYLES = (dark) => `
 
 // ── AI (Gemini) ──────────────────────────────────────────────
 async function askAI(prompt) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-    }
-  )
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${OPENROUTER_KEY}`,
+      'HTTP-Referer': 'https://pantrypal-pi.vercel.app',
+      'X-Title': 'Pantry Pal'
+    },
+    body: JSON.stringify({
+      model: 'mistralai/mistral-7b-instruct:free',
+      messages: [{ role: 'user', content: prompt }]
+    })
+  })
   const data = await res.json()
-  if (!data.candidates) throw new Error('Gemini error: ' + JSON.stringify(data))
-  return data.candidates[0].content.parts[0].text
+  if (!data.choices) throw new Error('AI Error')
+  return data.choices[0].message.content
 }
 
 // ── Spoonacular ──────────────────────────────────────────────
