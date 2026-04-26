@@ -195,12 +195,19 @@ async function askAI(prompt) {
       'X-Title': 'Pantry Pal'
     },
     body: JSON.stringify({
-      model: 'openrouter/free',
+      model: 'mistralai/mistral-7b-instruct', // ✅ FIXED
       messages: [{ role: 'user', content: prompt }]
+      
     })
   })
+
+  if (!res.ok) {
+    const errText = await res.text()
+    console.error("API ERROR:", errText)
+    throw new Error("API failed")
+  }
+
   const data = await res.json()
-  if (!data.choices) throw new Error('AI Error')
   return data.choices[0].message.content
 }
 
