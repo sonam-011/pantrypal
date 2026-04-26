@@ -195,7 +195,7 @@ async function askAI(prompt) {
       'X-Title': 'Pantry Pal'
     },
     body: JSON.stringify({
-      model: 'mistralai/mistral-7b-instruct', // ✅ FIXED
+      model: 'mistralai/mistral-7b-instruct-v0.2:free', // ✅ FIXED
       messages: [{ role: 'user', content: prompt }]
       
     })
