@@ -195,7 +195,7 @@ async function askAI(prompt) {
       'X-Title': 'Pantry Pal'
     },
     body: JSON.stringify({
-      model: 'deepseek/deepseek-r1:free', // ✅ FIXED
+      model: 'openrouter/auto', // ✅ FIXED
       messages: [{ role: 'user', content: prompt }]
       
     })
